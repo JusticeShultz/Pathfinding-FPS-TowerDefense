@@ -20,6 +20,7 @@ public class WorldGrid : MonoBehaviour
     public List<Node> FinalPath;
     public Vector3 DrawOffset;
     public MeshFilter LineRenderer;
+    public bool ShouldDebug = true;
     //public LineRenderer lineRenderer;
 
     [HideInInspector] public List<Node> Path = new List<Node>();
@@ -294,6 +295,7 @@ public class WorldGrid : MonoBehaviour
 
     private void LateUpdate()
     {
+        #region ignore
         if (NodeArray != null)
         {
             if (FinalPath == null) return;
@@ -315,14 +317,13 @@ public class WorldGrid : MonoBehaviour
                     }
                 }
             }
+            #endregion
 
             Vector2[] points = new Vector2[(Path.Count + 2)];
             Vector2[] points1 = new Vector2[(points.Length)];
-            Vector2[] finalpoints = new Vector2[(points.Length + points1.Length)];
-            //Vector3[] points1 = new Vector3[Path.Count + 2];
+            Vector2[] finalpoints = new Vector2[(points.Length + points1.Length) * 2];
 
-            points[0] = new Vector2(StartPosition.transform.position.x, StartPosition.transform.position.z);
-            //points1[0] = StartPosition.transform.position + StartPosition.transform.right;
+            //points[0] = new Vector2(StartPosition.transform.position.x, StartPosition.transform.position.z);
 
             int q = 1;
 
@@ -332,30 +333,188 @@ public class WorldGrid : MonoBehaviour
                 ++q;
             }
 
-            points[q] = new Vector2(EndPosition.transform.position.x, EndPosition.transform.position.z);
+            Vector2[] tPoints = new Vector2[(Path.Count + 1) * 2];
+            for(int i = 0; i < Path.Count * 2; i+=2)
+            {
+                int whereWeAt = i / 2;
+                try
+                {
+                    Vector3 s = Vector3.up;
+                    Vector3 f = Vector3.zero;
 
-            points1[0] = new Vector2(StartPosition.transform.position.x, StartPosition.transform.position.z);
+                    //Debug.DrawRay(s, f - s, Color.red);
 
-            for (int i = 1; i < points.Length-1; ++i)
+                    if(ShouldDebug)
+                        Debug.DrawRay(Path[whereWeAt].vPosition, Vector3.down, Color.white);
+                    Vector2 dir = new Vector2(Path[whereWeAt + 1].vPosition.x - Path[whereWeAt].vPosition.x, Path[whereWeAt + 1].vPosition.z - Path[whereWeAt].vPosition.z);
+                    //Debug.Log(dir);
+                    if (ShouldDebug)
+                        Debug.DrawRay(Path[whereWeAt].vPosition, dir.normalized * 15.0f, Color.magenta);
+                    Vector2 perp = new Vector2(dir.y, -dir.x) * 10.0f;
+                    tPoints[i] = new Vector2(Path[whereWeAt].vPosition.x, Path[whereWeAt].vPosition.z) + perp.normalized;
+                    tPoints[i + 1] = new Vector2(Path[whereWeAt].vPosition.x, Path[whereWeAt].vPosition.z) - perp.normalized;
+
+                    if (ShouldDebug)
+                    {
+                        Debug.DrawRay(Path[whereWeAt].vPosition, new Vector3(perp.x, 0.0f, perp.y), Color.blue);
+                        Debug.DrawRay(Path[whereWeAt].vPosition, -(new Vector3(perp.x, 0.0f, perp.y)), Color.green);
+                    }
+                }
+                catch
+                {
+                    //Debug.LogError("i:" + i + "\nwhereWeAt: " + whereWeAt);
+                }
+            }
+
+            //points[q] = new Vector2(EndPosition.transform.position.x, EndPosition.transform.position.z);
+
+            for (int i = 0; i < points.Length - 1; ++i)
             {
                 Vector2 forward = points[i+1] - points[i ];
                 Vector2 right = new Vector2(forward.y, -forward.x);
                 Vector2 rhs = points[i + 1] + right.normalized;
-
-                //Vector3.Cross(new Vector3(points[i].x, 0, points[i].y), new Vector3(points[i+1].x, 0, points[i+1].y));
                 points1[i] =  rhs;
             }
 
-            points1[points1.Length-1] = new Vector2(EndPosition.transform.position.x, EndPosition.transform.position.z);
-
-            //finalpoints = points.Concat(points1).ToArray();
-
-            for(int i = 0; i < points.Length-1; i+=2)
+            for (int i = 0; i < points.Length - 1; ++i)
             {
-                finalpoints[i] = points[i];
-                finalpoints[i+1] = points1[i];
+                Vector2 forward = points[i + 1] - points[i];
+                Vector2 right = new Vector2(forward.y, -forward.x);
+                Vector2 lhs = points[i + 1] - right.normalized;
+                points[i] = lhs;
             }
 
+            points[0] = new Vector2(StartPosition.transform.position.x, StartPosition.transform.position.z) -
+                        new Vector2(StartPosition.transform.right.x, StartPosition.transform.right.z);
+            points1[0] = new Vector2(StartPosition.transform.position.x, StartPosition.transform.position.z) +
+                        new Vector2(StartPosition.transform.right.x, StartPosition.transform.right.z);
+            points[points.Length-1] = new Vector2(EndPosition.transform.position.x, EndPosition.transform.position.z) -
+                        new Vector2(EndPosition.transform.right.x, EndPosition.transform.right.z);
+            points1[points1.Length-1] = new Vector2(EndPosition.transform.position.x, EndPosition.transform.position.z) +
+                        new Vector2(EndPosition.transform.right.x, EndPosition.transform.right.z);
+
+            //for (int i = 0; i < justice; i++)
+            //{
+            //    // triangle 1
+            //    finalpoints[i] = tPoints[i];             // 0    0
+            //    finalpoints[i + 1] = tPoints[i + 3];     // 1    1
+            //    finalpoints[i + 2] = tPoints[i + 1];    // 2        1
+
+            //    // triangle 2
+            //    finalpoints[i + 3] = tPoints[i];    // 3        1
+            //    finalpoints[i + 4] = tPoints[i+2];        // 4        0
+            //    finalpoints[i + 5] = tPoints[i+3];         // 5    0
+
+            //                                            // 1    1
+            //                                            // 2    2
+            //                                            // 3        2
+
+            //                                            // 4        2
+            //                                            // 5    1
+            //                                            // 6    1
+            //}
+
+
+
+            var things = tPoints;
+
+            if (ShouldDebug)
+                for (int i = 0; i < things.Length; ++i)
+                {
+                    Debug.DrawRay(new Vector3(things[i].x, 0.0f, things[i].y), Vector3.up * 10.0f, Color.red);
+                }
+
+            //Triangulator test = new Triangulator(tPoints);
+            //int[] indices = test.Triangulate();
+
+            Vector3[] vertices = new Vector3[tPoints.Length];
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                vertices[i] = new Vector3(tPoints[i].x, 0, tPoints[i].y);
+            }
+
+            Mesh msh = new Mesh();
+
+            msh.vertices = vertices;
+            msh.triangles = GimmeTriangles(tPoints.Length);
+
+            msh.RecalculateBounds();
+            msh.RecalculateNormals();
+            
+            LineRenderer.mesh = msh;
+        }
+    }
+
+    public int[] GimmeTriangles(int length)
+    {
+        //Debug.Log(length);
+        //int[] temp = new int[length];
+        List<int> temp = new List<int>();
+
+        for (int ti = 0; ti < length - 2; ti += 2)
+        {
+            //first
+            temp.Add(ti);
+            temp.Add(ti + 1);
+            temp.Add(ti + 3);
+            //second
+            temp.Add(ti);
+            temp.Add(ti + 3);
+            temp.Add(ti + 2);
+        }
+
+        int[] tris = temp.ToArray();//.Reverse().ToArray();
+        return tris;
+    }
+
+    public bool IsBlocked()
+    {
+        if (FinalPath == null || NodeArray == null || Blocked)
+            return true;
+
+        return false;
+    }
+}
+
+            ///first
+            //temp[ti] = vi;
+            //temp[ti + 1] = vi + 3;
+            //temp[ti + 2] = vi + 1;
+            ///second
+            //temp[ti + 3] = vi;
+            //temp[ti + 4] = vi + 2;
+            //temp[ti + 5] = vi + 3;
+/*
+            temp.Add(p);
+            temp.Add(p + 2);
+            temp.Add(p + 1);
+            temp.Add(p - 1);
+            temp.Add(p + 3);
+            temp.Add(p + 1);
+            
+    //if (p + 6 > length)
+            //{
+
+            //    //temp.Add(p);
+            //    //temp.Add(p + 2);
+            //    //temp.Add(p - 1);
+            //    break;
+            //}
+
+            //temp.Add(p);
+            //temp.Add(p + 2);
+            //temp.Add(p + 1);
+
+            //temp.Add(p - 1);
+            //temp.Add(p + 3);
+            //temp.Add(p + 1);
+
+            
+            _ > _
+            ^ + v
+            _ > _
+
+ */
             /*int e = 1;
 
             foreach (Node v in Path)
@@ -380,53 +539,8 @@ public class WorldGrid : MonoBehaviour
             }*/
 
             //Triangulator tr = new Triangulator(points);
-            int[] indices = GimmeTriangles(points.Length);//tr.Triangulate();
-
-            // Create the Vector3 vertices
-            Vector3[] vertices = new Vector3[points.Length];
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                vertices[i] = new Vector3(points[i].x, 0, points[i].y);
-            }
-
-            // Create the mesh
-            Mesh msh = new Mesh();
-            msh.vertices = vertices;
-            msh.triangles = indices;
-            msh.RecalculateNormals();
-            msh.RecalculateBounds();
-            LineRenderer.mesh = msh;
-
+            
             /*mesh.vertices = points;
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
             LineRenderer.mesh = mesh;*/
-        }
-    }
-
-    public int[] GimmeTriangles(int length)
-    {
-        //int[] temp = new int[length];
-        List<int> temp = new List<int>();
-       
-        for (int p =0; p< length-1; p+=2)
-        {
-            temp.Add(p);
-            temp.Add(p + 2);
-            temp.Add(p + 1);
-            temp.Add(p - 1);
-            temp.Add(p + 3);
-            temp.Add(p + 1);
-        }
-
-        return temp.ToArray();
-    }
-
-    public bool IsBlocked()
-    {
-        if (FinalPath == null || NodeArray == null || Blocked)
-            return true;
-
-        return false;
-    }
-}
