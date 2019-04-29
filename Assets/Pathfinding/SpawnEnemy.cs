@@ -15,7 +15,8 @@ public class SpawnEnemy : MonoBehaviour
     private IEnumerator Spawn()
     {
         yield return new WaitForSeconds(SpawnRate);
-        Instantiate(ToSpawn, transform.position, transform.rotation);
+        GameObject spawn = Instantiate(ToSpawn, transform.position, transform.rotation);
+        spawn.name = "Enemy(Clone)";
         StartCoroutine(Spawn());
     }
 }

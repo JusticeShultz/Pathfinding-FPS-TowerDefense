@@ -6,6 +6,7 @@ public class AI : MonoBehaviour
 {
     public float NodeSwitchDistance = 0.5f;
     public float MovementSpeed = 10.0f;
+    public float Health = 2;
 
     private List<Node> localPath = new List<Node>();
     private Rigidbody rb;
@@ -20,6 +21,8 @@ public class AI : MonoBehaviour
 
     void Update()
     {
+        if (Health <= 0) Destroy(gameObject);
+
         if (localPath.Count > 1)
         {
             if (Vector3.Distance(transform.position, localPath[0].vPosition) < NodeSwitchDistance)

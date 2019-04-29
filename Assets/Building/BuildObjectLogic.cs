@@ -31,19 +31,19 @@ public class BuildObjectLogic : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.name != "Ground")
+        if(other.gameObject.name != "Ground" && other.name != "TurretDetector")
             CanBuild = false;
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.name != "Ground")
+        if (other.gameObject.name != "Ground" && other.name != "TurretDetector")
             CanBuild = false;
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.name != "Ground")
+        if (other.gameObject.name != "Ground" && other.name != "TurretDetector")
             CanBuild = true;
     }
 }

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+    public float Damage = 1;
+
     Rigidbody rb;
     [HideInInspector] public GameObject target;
     [HideInInspector] public float speed;
@@ -17,7 +19,8 @@ public class Bullet : MonoBehaviour
     {
         if(collision.gameObject.name == "Enemy(Clone)")
         {
-            Destroy(collision.gameObject);
+            //Destroy(collision.gameObject);
+            collision.gameObject.GetComponent<AI>().Health -= Damage;
         }
 
         Destroy(gameObject);

@@ -21,6 +21,8 @@ public class WorldGrid : MonoBehaviour
     public Vector3 DrawOffset;
     public MeshFilter LineRenderer;
     public bool ShouldDebug = true;
+    public float LinePrecision = 0.01f;
+    public float DrawInterval = 0.1f;
     //public LineRenderer lineRenderer;
 
     [HideInInspector] public List<Node> Path = new List<Node>();
@@ -319,22 +321,36 @@ public class WorldGrid : MonoBehaviour
             }
             #endregion
 
-            Vector2[] points = new Vector2[(Path.Count + 2)];
-            Vector2[] points1 = new Vector2[(points.Length)];
-            Vector2[] finalpoints = new Vector2[(points.Length + points1.Length) * 2];
+            List<Vector2> LerpedPath = new List<Vector2>();
 
-            //points[0] = new Vector2(StartPosition.transform.position.x, StartPosition.transform.position.z);
-
-            int q = 1;
-
+            /*int uh = 0;
             foreach (Node a in Path)
             {
-                points[q] = new Vector2(a.vPosition.x, a.vPosition.z);
-                ++q;
+                LerpedPath[uh] = new Vector2(a.vPosition.x, a.vPosition.z);
+                ++uh;
+            }*/
+
+            Vector2 FakeObject = new Vector2(StartPosition.transform.position.x, StartPosition.transform.position.z);
+
+            foreach (Node n in Path)
+            {
+                int justInCase = 0;
+
+                while(Vector2.Distance(new Vector2(n.vPosition.x, n.vPosition.z), FakeObject) >= LinePrecision)
+                {
+                    //FakeObject = Vector2.Lerp(FakeObject, new Vector2(n.vPosition.x, n.vPosition.z), DrawInterval);
+                    FakeObject = Vector3.MoveTowards(FakeObject, new Vector2(n.vPosition.x, n.vPosition.z), DrawInterval);
+                    LerpedPath.Add(FakeObject);
+
+                    ++justInCase;
+
+                    if (justInCase > 2500) break;
+                }
             }
 
-            Vector2[] tPoints = new Vector2[(Path.Count + 1) * 2];
-            for(int i = 0; i < Path.Count * 2; i+=2)
+            Vector2[] tPoints = new Vector2[(LerpedPath.Count + 1) * 2];
+
+            for(int i = 0; i < LerpedPath.Count * 2; i+=2)
             {
                 int whereWeAt = i / 2;
                 try
@@ -342,22 +358,20 @@ public class WorldGrid : MonoBehaviour
                     Vector3 s = Vector3.up;
                     Vector3 f = Vector3.zero;
 
-                    //Debug.DrawRay(s, f - s, Color.red);
-
                     if(ShouldDebug)
-                        Debug.DrawRay(Path[whereWeAt].vPosition, Vector3.down, Color.white);
-                    Vector2 dir = new Vector2(Path[whereWeAt + 1].vPosition.x - Path[whereWeAt].vPosition.x, Path[whereWeAt + 1].vPosition.z - Path[whereWeAt].vPosition.z);
+                        Debug.DrawRay(LerpedPath[whereWeAt], Vector3.down, Color.white);
+                    Vector2 dir = new Vector2(LerpedPath[whereWeAt + 1].x - LerpedPath[whereWeAt].x, LerpedPath[whereWeAt + 1].y - LerpedPath[whereWeAt].y);
                     //Debug.Log(dir);
                     if (ShouldDebug)
-                        Debug.DrawRay(Path[whereWeAt].vPosition, dir.normalized * 15.0f, Color.magenta);
+                        Debug.DrawRay(LerpedPath[whereWeAt], dir.normalized * 15.0f, Color.magenta);
                     Vector2 perp = new Vector2(dir.y, -dir.x) * 10.0f;
-                    tPoints[i] = new Vector2(Path[whereWeAt].vPosition.x, Path[whereWeAt].vPosition.z) + perp.normalized;
-                    tPoints[i + 1] = new Vector2(Path[whereWeAt].vPosition.x, Path[whereWeAt].vPosition.z) - perp.normalized;
+                    tPoints[i] = new Vector2(LerpedPath[whereWeAt].x, LerpedPath[whereWeAt].y) + perp.normalized;
+                    tPoints[i + 1] = new Vector2(LerpedPath[whereWeAt].x, LerpedPath[whereWeAt].y) - perp.normalized;
 
                     if (ShouldDebug)
                     {
-                        Debug.DrawRay(Path[whereWeAt].vPosition, new Vector3(perp.x, 0.0f, perp.y), Color.blue);
-                        Debug.DrawRay(Path[whereWeAt].vPosition, -(new Vector3(perp.x, 0.0f, perp.y)), Color.green);
+                        Debug.DrawRay(LerpedPath[whereWeAt], new Vector3(perp.x, 0.0f, perp.y), Color.blue);
+                        Debug.DrawRay(LerpedPath[whereWeAt], -(new Vector3(perp.x, 0.0f, perp.y)), Color.green);
                     }
                 }
                 catch
@@ -366,55 +380,14 @@ public class WorldGrid : MonoBehaviour
                 }
             }
 
-            //points[q] = new Vector2(EndPosition.transform.position.x, EndPosition.transform.position.z);
-
-            for (int i = 0; i < points.Length - 1; ++i)
-            {
-                Vector2 forward = points[i+1] - points[i ];
-                Vector2 right = new Vector2(forward.y, -forward.x);
-                Vector2 rhs = points[i + 1] + right.normalized;
-                points1[i] =  rhs;
-            }
-
-            for (int i = 0; i < points.Length - 1; ++i)
-            {
-                Vector2 forward = points[i + 1] - points[i];
-                Vector2 right = new Vector2(forward.y, -forward.x);
-                Vector2 lhs = points[i + 1] - right.normalized;
-                points[i] = lhs;
-            }
-
-            points[0] = new Vector2(StartPosition.transform.position.x, StartPosition.transform.position.z) -
-                        new Vector2(StartPosition.transform.right.x, StartPosition.transform.right.z);
-            points1[0] = new Vector2(StartPosition.transform.position.x, StartPosition.transform.position.z) +
-                        new Vector2(StartPosition.transform.right.x, StartPosition.transform.right.z);
-            points[points.Length-1] = new Vector2(EndPosition.transform.position.x, EndPosition.transform.position.z) -
-                        new Vector2(EndPosition.transform.right.x, EndPosition.transform.right.z);
-            points1[points1.Length-1] = new Vector2(EndPosition.transform.position.x, EndPosition.transform.position.z) +
-                        new Vector2(EndPosition.transform.right.x, EndPosition.transform.right.z);
-
-            //for (int i = 0; i < justice; i++)
-            //{
-            //    // triangle 1
-            //    finalpoints[i] = tPoints[i];             // 0    0
-            //    finalpoints[i + 1] = tPoints[i + 3];     // 1    1
-            //    finalpoints[i + 2] = tPoints[i + 1];    // 2        1
-
-            //    // triangle 2
-            //    finalpoints[i + 3] = tPoints[i];    // 3        1
-            //    finalpoints[i + 4] = tPoints[i+2];        // 4        0
-            //    finalpoints[i + 5] = tPoints[i+3];         // 5    0
-
-            //                                            // 1    1
-            //                                            // 2    2
-            //                                            // 3        2
-
-            //                                            // 4        2
-            //                                            // 5    1
-            //                                            // 6    1
-            //}
-
-
+            //points[0] = new Vector2(StartPosition.transform.position.x, StartPosition.transform.position.z) -
+            //            new Vector2(StartPosition.transform.right.x, StartPosition.transform.right.z);
+            //points1[0] = new Vector2(StartPosition.transform.position.x, StartPosition.transform.position.z) +
+            //            new Vector2(StartPosition.transform.right.x, StartPosition.transform.right.z);
+            //points[points.Length-1] = new Vector2(EndPosition.transform.position.x, EndPosition.transform.position.z) -
+            //            new Vector2(EndPosition.transform.right.x, EndPosition.transform.right.z);
+            //points1[points1.Length-1] = new Vector2(EndPosition.transform.position.x, EndPosition.transform.position.z) +
+            //            new Vector2(EndPosition.transform.right.x, EndPosition.transform.right.z);
 
             var things = tPoints;
 
@@ -428,6 +401,7 @@ public class WorldGrid : MonoBehaviour
             //int[] indices = test.Triangulate();
 
             Vector3[] vertices = new Vector3[tPoints.Length];
+
             for (int i = 0; i < vertices.Length; i++)
             {
                 vertices[i] = new Vector3(tPoints[i].x, 0, tPoints[i].y);
@@ -440,7 +414,7 @@ public class WorldGrid : MonoBehaviour
 
             msh.RecalculateBounds();
             msh.RecalculateNormals();
-            
+            msh.RecalculateTangents();
             LineRenderer.mesh = msh;
         }
     }
