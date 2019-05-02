@@ -27,7 +27,9 @@ public class AI : MonoBehaviour
             if (Random.Range(1, 4) == 2)
             {
                 GameObject item = Instantiate(DroppedItem, transform.position, transform.rotation);
-                BuildersController.builder.scrapHeap.Add(item);
+                //BuildersController.builder.scrapHeap.Add(item);
+                //BuildController_Attempt2.Instance.scrapHeap.Add(item);
+                BuildController_Attempt3.Instance.scrapHeap.Add(item);
             }
 
             Destroy(gameObject);

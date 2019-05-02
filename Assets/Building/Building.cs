@@ -38,7 +38,9 @@ public class Building : MonoBehaviour
                 }
                 else
                 {
-                    BuildersController.builder.buildHeap.Add(build);
+                    //BuildersController.builder.buildHeap.Add(build);
+                    //BuildController_Attempt2.Instance.buildHeap.Add(build);
+                    BuildController_Attempt3.Instance.buildHeap.Add(build);
                     MoneyHandler.Money -= BuildObjectLogic.LogicSystem.myCost;
                 }
             }

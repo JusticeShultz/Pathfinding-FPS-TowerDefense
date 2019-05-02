@@ -107,10 +107,6 @@ public class BuildersController : MonoBehaviour
         {
             if(!taskList[0].Complete)
                 GoToBuild(taskList[0]);
-            else
-            {
-                taskList.Remove(taskList[0]);
-            }
 
             HomeBaseText.text = "Builder Task: Building";
         }
