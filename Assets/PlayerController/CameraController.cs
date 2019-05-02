@@ -34,6 +34,8 @@ namespace Justice
 
         void Update()
         {
+            if (ToggleBuildMenu.TabOpen) return;
+
             yRot += Input.GetAxis("Mouse X") * lookSensitivity;
             xRot -= Input.GetAxis("Mouse Y") * lookSensitivity;
             xRot = Mathf.Clamp(xRot, MinMaxAngle.x, MinMaxAngle.y);

@@ -24,7 +24,7 @@ public class Building : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (BuildObjectLogic.LogicSystem.CanBuild && InBuildRange)
+            if (BuildObjectLogic.LogicSystem.CanBuild && InBuildRange && BuildObjectLogic.CanAfford)
             {
                 GameObject build = Instantiate(BuildObject.GetComponent<BuildObjectLogic>().BuiltPrefab, BuildObject.transform.position, BuildObject.transform.rotation);
 
@@ -35,6 +35,11 @@ public class Building : MonoBehaviour
                     Destroy(build);
                     Pathfinder.ForceUpdate();
                     StartCoroutine(BlockText());
+                }
+                else
+                {
+                    BuildersController.builder.buildHeap.Add(build);
+                    MoneyHandler.Money -= BuildObjectLogic.LogicSystem.myCost;
                 }
             }
         }
@@ -73,5 +78,11 @@ public class Building : MonoBehaviour
         CannotBlockText.color = Color.red;
         yield return new WaitForSeconds(2.0f);
         CannotBlockText.color = Color.clear;
+    }
+
+    public void SetBuildObject(GameObject obj)
+    {
+        Destroy(BuildObject);
+        BuildObject = Instantiate(obj);
     }
 }

@@ -7,6 +7,7 @@ public class AI : MonoBehaviour
     public float NodeSwitchDistance = 0.5f;
     public float MovementSpeed = 10.0f;
     public float Health = 2;
+    public GameObject DroppedItem;
 
     private List<Node> localPath = new List<Node>();
     private Rigidbody rb;
@@ -21,7 +22,16 @@ public class AI : MonoBehaviour
 
     void Update()
     {
-        if (Health <= 0) Destroy(gameObject);
+        if (Health <= 0)
+        {
+            if (Random.Range(1, 4) == 2)
+            {
+                GameObject item = Instantiate(DroppedItem, transform.position, transform.rotation);
+                BuildersController.builder.scrapHeap.Add(item);
+            }
+
+            Destroy(gameObject);
+        }
 
         if (localPath.Count > 1)
         {

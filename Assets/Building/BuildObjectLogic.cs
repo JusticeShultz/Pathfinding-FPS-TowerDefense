@@ -9,19 +9,25 @@ public class BuildObjectLogic : MonoBehaviour
     public Material GoodBuildLocation;
     public static Building BuildingSystem;
     public static BuildObjectLogic LogicSystem;
+    public static bool CanAfford;
     public GameObject BuiltPrefab;
+    public int myCost;
 
     [HideInInspector] public bool CanBuild = true;
 
     private void Awake()
     {
+        myCost = GetComponent<MoneyHandler>().Cost;
         CanBuild = true;
         LogicSystem = this;    
     }
 
     void Update ()
     {
-		if(CanBuild && BuildingSystem.InBuildRange)
+        if (myCost > MoneyHandler.Money) CanAfford = false;
+        else CanAfford = true;
+
+        if (CanBuild && BuildingSystem.InBuildRange && myCost <= MoneyHandler.Money)
             foreach (MeshRenderer mesh in MaterialObjects)
                 mesh.material = GoodBuildLocation;
         else

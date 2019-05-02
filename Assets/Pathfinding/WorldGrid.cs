@@ -23,6 +23,9 @@ public class WorldGrid : MonoBehaviour
     public bool ShouldDebug = true;
     public float LinePrecision = 0.01f;
     public float DrawInterval = 0.1f;
+
+    bool NeedsUpdate = false;
+
     //public LineRenderer lineRenderer;
 
     [HideInInspector] public List<Node> Path = new List<Node>();
@@ -39,11 +42,13 @@ public class WorldGrid : MonoBehaviour
         iGridSizeX = Mathf.RoundToInt(vGridWorldSize.x / fNodeDiameter);
         iGridSizeY = Mathf.RoundToInt(vGridWorldSize.y / fNodeDiameter);
         CreateGrid();
+        NeedsUpdate = true;
     }
 
     public void ForceUpdate()
     {
         CreateGrid();
+        NeedsUpdate = true;
     }
 
     void CreateGrid()
@@ -297,6 +302,9 @@ public class WorldGrid : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (!NeedsUpdate) return;
+        else NeedsUpdate = false;
+
         #region ignore
         if (NodeArray != null)
         {
