@@ -17,6 +17,7 @@ public class BuildObjectLogic : MonoBehaviour
 
     private void Awake()
     {
+        CanAfford = false;
         myCost = GetComponent<MoneyHandler>().Cost;
         CanBuild = true;
         LogicSystem = this;    

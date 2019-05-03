@@ -181,6 +181,7 @@ public class BuildController_Attempt3 : MonoBehaviour
     public float moveDistance = 2.0f; //The max distance we may be from our desired object.
     public float buildSpeed = 1.0f; //The speed at which we build.
     public int[] UpgradeCost = new int[4] { 10, 10, 10, 10 };
+    public UnityEngine.UI.Text[] CostText = new UnityEngine.UI.Text[4];
 
     //[These lists are handled by other scripts and simply keep us aware of the board state so that we do not need to use finds, etc]
     [HideInInspector] public List<GameObject> scrapHeap = new List<GameObject>(); //The scrap that is on the field.
@@ -192,6 +193,8 @@ public class BuildController_Attempt3 : MonoBehaviour
     
     void Awake ()
     {
+        PortableDamage = 0;
+        PortableFireRate = 0;
         Instance = this; //Grabs the instance of our builder so other scripts may access us easier.
         currentBehavior = new IdleBehavior(this, Time.deltaTime); //Set the starting state to be idle.
     }
@@ -215,7 +218,8 @@ public class BuildController_Attempt3 : MonoBehaviour
         {
             MoneyHandler.Money -= UpgradeCost[0];
             UpgradeCost[0] *= 2;
-            movementSpeed += 0.3f;
+            movementSpeed += 0.6f;
+            CostText[0].text = "Costs: " + UpgradeCost[0];
         }
     }
 
@@ -226,6 +230,7 @@ public class BuildController_Attempt3 : MonoBehaviour
             MoneyHandler.Money -= UpgradeCost[1];
             UpgradeCost[1] *= 4;
             buildSpeed += 0.25f;
+            CostText[1].text = "Costs: " + UpgradeCost[1];
         }
     }
 
@@ -236,6 +241,7 @@ public class BuildController_Attempt3 : MonoBehaviour
             MoneyHandler.Money -= UpgradeCost[2];
             UpgradeCost[2] *= 3;
             PortableDamage += 2;
+            CostText[2].text = "Costs: " + UpgradeCost[2];
         }
     }
 
@@ -246,6 +252,7 @@ public class BuildController_Attempt3 : MonoBehaviour
             MoneyHandler.Money -= UpgradeCost[3];
             UpgradeCost[3] *= 5;
             PortableFireRate += 0.05f;
+            CostText[3].text = "Costs: " + UpgradeCost[3];
         }
     }
 }

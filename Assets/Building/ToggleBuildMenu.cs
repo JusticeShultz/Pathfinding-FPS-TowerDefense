@@ -6,7 +6,12 @@ public class ToggleBuildMenu : MonoBehaviour
 
     public GameObject Menu;
 
-	void Update ()
+    private void Awake()
+    {
+        TabOpen = false;    
+    }
+
+    void Update ()
     {
         if (Input.GetKeyDown(KeyCode.Tab))
         {

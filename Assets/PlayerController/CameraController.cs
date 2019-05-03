@@ -25,7 +25,7 @@ namespace Justice
 
         CharacterController charController;
 
-        void Start()
+        void Awake()
         {
             camPos = transform.localPosition;
             charController = GetComponentInParent<CharacterController>();

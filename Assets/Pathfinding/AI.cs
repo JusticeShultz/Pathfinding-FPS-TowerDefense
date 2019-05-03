@@ -53,6 +53,7 @@ public class AI : MonoBehaviour
         }
         else
         {
+            --HealthManager.Health;
             Destroy(gameObject);
         }
     }
