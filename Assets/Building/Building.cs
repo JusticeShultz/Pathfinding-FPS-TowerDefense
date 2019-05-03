@@ -22,7 +22,7 @@ public class Building : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !ToggleBuildMenu.TabOpen)
         {
             if (BuildObjectLogic.LogicSystem.CanBuild && InBuildRange && BuildObjectLogic.CanAfford)
             {

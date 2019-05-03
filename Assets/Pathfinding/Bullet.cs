@@ -9,6 +9,7 @@ public class Bullet : MonoBehaviour
     Rigidbody rb;
     [HideInInspector] public GameObject target;
     [HideInInspector] public float speed;
+    float Timer = 0f;
 
     private void Start()
     {
@@ -28,7 +29,11 @@ public class Bullet : MonoBehaviour
 
     private void Update()
     {
-        if (target == null) return; //Destroy(gameObject);
+        Timer += Time.deltaTime;
+        //Don't live for more than 4 seconds, this will help reduce lag.
+        if (Timer >= 4) Destroy(gameObject);
+
+        if (target == null) return;
         else
         {
             if (target.transform != null)

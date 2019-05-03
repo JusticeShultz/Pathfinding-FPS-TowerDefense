@@ -8,11 +8,16 @@ public class TurretAI : MonoBehaviour
     public GameObject Shot;
     public float ShotSpeed;
     public float FireRate;
+    public bool Aim = true;
+    public bool shoulderTurret = false;
+
+    private float fireRate_nontemp = 0f;
 
     GameObject target;
 
     private void Start()
     {
+        fireRate_nontemp = FireRate;
         StartCoroutine(Fire());
     }
 
@@ -26,6 +31,11 @@ public class TurretAI : MonoBehaviour
             shot.GetComponent<Rigidbody>().velocity = transform.parent.forward * ShotSpeed;
             shot.GetComponent<Bullet>().target = target;
             shot.GetComponent<Bullet>().speed = ShotSpeed;
+
+            if(shoulderTurret)
+            {
+                shot.GetComponent<Bullet>().Damage += BuildController_Attempt3.PortableDamage;
+            }
         }
 
         StartCoroutine(Fire());
@@ -46,7 +56,10 @@ public class TurretAI : MonoBehaviour
 
     private void Update()
     {
-        if (target != null)
+        if (shoulderTurret)
+            FireRate = fireRate_nontemp - BuildController_Attempt3.PortableFireRate;
+                
+        if (target != null && Aim)
             transform.parent.LookAt(target.transform.position);
     }
 }
