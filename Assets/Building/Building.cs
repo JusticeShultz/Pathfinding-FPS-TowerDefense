@@ -41,6 +41,7 @@ public class Building : MonoBehaviour
                     //BuildersController.builder.buildHeap.Add(build);
                     //BuildController_Attempt2.Instance.buildHeap.Add(build);
                     BuildController_Attempt3.Instance.buildHeap.Add(build);
+                    Pathfinder.ForceUpdate();
                     MoneyHandler.Money -= BuildObjectLogic.LogicSystem.myCost;
                 }
             }
