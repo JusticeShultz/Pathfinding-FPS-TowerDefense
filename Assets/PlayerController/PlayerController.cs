@@ -41,7 +41,7 @@ namespace Justice
 
         void Start()
         {
-            MoneyHandler.Money = 1000;
+            MoneyHandler.Money = 550;
             Initialize();
         }
 
